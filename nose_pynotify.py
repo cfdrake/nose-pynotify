@@ -22,9 +22,8 @@ class PyNotify(Plugin):
     # Run parent class' constructor
     super(PyNotify, self).__init__()
 
-    # Generate msg title and body
+    # Generate msg title
     self.cwd = os.getcwd()
-    self.msg = "%s successes, %s errors, %s failures"
 
   def addError(self, test, err):
     """Called upon encountering an error"""
@@ -65,9 +64,18 @@ class PyNotify(Plugin):
     icon_name = "gtk-yes" if result.wasSuccessful() else "gtk-no"
 
     # Generate and show the message at the end of the test
+    msg = "%s success%s, %s error%s, %s failure%s"
     n = pynotify.Notification(self.cwd,
-                              self.msg % (successes,
-                                          errors,
-                                          failures),
+                              msg % (successes,
+                                     self.plural(successes, special=True),
+                                     errors,
+                                     self.plural(errors),
+                                     failures,
+                                     self.plural(failures)),
                               icon_name)
     n.show()    
+
+  def plural(self, n, special=False):
+    """Returns empty string if n == 1, otherwise the 's' needed as a suffix"""
+    suffix = "s" if not special else "es"
+    return suffix if (n == 0 or n > 1) else ""
