@@ -91,15 +91,14 @@ class PyNotify(Plugin):
     icon_name = "gtk-yes" if result.wasSuccessful() else "gtk-no"
 
     # Generate and show the message at the end of the test
-    msg = "%s success%s, %s error%s, %s failure%s"
-    n = pynotify.Notification(self.cwd,
-                              msg % (successes,
-                                     self.plural(successes, special=True),
-                                     errors,
-                                     self.plural(errors),
-                                     failures,
-                                     self.plural(failures)),
-                              icon_name)
+    msg = "%s success%s, %s error%s, %s failure%s" % (
+              successes,
+              self.plural(successes, special=True),
+              errors,
+              self.plural(errors),
+              failures,
+              self.plural(failures))
+    n = pynotify.Notification(self.cwd, msg, icon_name)
     n.show()    
 
   def plural(self, n, special=False):
