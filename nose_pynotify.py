@@ -59,10 +59,10 @@ class PyNotify(Plugin):
     # Initialize pynotify
     pynotify.init(os.getcwd())
 
-  def options(parser,env):
+  def options(self, parser, env):
     """Called to allow plugin to register command line options with the parser."""
     # TODO: add option to of avoiding individual error/failure notifications
-    pass
+    Plugin.options(self, parser, env)
 
   def finalize(self, result):
     """Called upon the completion of all tests"""
