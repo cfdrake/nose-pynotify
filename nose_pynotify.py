@@ -39,7 +39,8 @@ class PyNotify(Plugin):
   def addError(self, test, err):
     """Called upon encountering an error"""
     # Update counter
-    n = pynotify.Notification(test.shortDescription(),
+    title = test.shortDescription() or self.cwd
+    n = pynotify.Notification(title,
             "Error: " + str(err[0].__name__) +
             "\n" + str(err[1]), 'gtk-no')
     n.show()
@@ -48,7 +49,8 @@ class PyNotify(Plugin):
   def addFailure(self, test, err):
     """Called upon encountering a failure"""
     # Update counter
-    n = pynotify.Notification(test.shortDescription(),
+    title = test.shortDescription() or self.cwd
+    n = pynotify.Notification(title,
             "Failed: " + str(err[0].__name__) +
             "\n" + str(err[1]), 'gtk-no')
     n.show()
