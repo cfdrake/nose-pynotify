@@ -21,11 +21,8 @@ class PyNotify(Plugin):
     """Constructor"""
     # Run parent class' constructor
     super(PyNotify, self).__init__()
-
     self.show_each_error = False
     self.show_each_failure = False
-
-    # Generate msg title
     self.cwd = os.getcwd()
 
   def addError(self, test, err):
@@ -48,10 +45,10 @@ class PyNotify(Plugin):
               "\n" + str(err[1]), 'gtk-no')
       n.show()
 
-  def begin(a):
+  def begin(self):
     """Called before running any tests, used for initialization"""
     # Initialize pynotify
-    pynotify.init(os.getcwd())
+    pynotify.init(self.cwd)
 
   def configure(self, options, conf):
     """Configure the plugin based on provided options"""
@@ -63,7 +60,7 @@ class PyNotify(Plugin):
       self.show_each_failure = True
 
   def options(self, parser, env):
-    """Called to allow plugin to register command line options with the parser."""
+    """Called to allow plugin to register command line options with the parser"""
     Plugin.options(self, parser, env)
 
     parser.add_option("--show-each-error",
