@@ -22,39 +22,27 @@ class PyNotify(Plugin):
     # Run parent class' constructor
     super(PyNotify, self).__init__()
 
-    # Set up number of successes, failures, and errors
-    self.successes = 0
-    self.failures = 0
-    self.errors = 0
-
     # Generate msg title and body
     self.cwd = os.getcwd()
     self.msg = "%s successes, %s errors, %s failures"
 
-  def addSuccess(self, test):
-    """Called upon encountering a success"""
-    # Update counter
-    self.successes += 1
-
   def addError(self, test, err):
     """Called upon encountering an error"""
-    # Update counter
+    # Display error msg
     title = test.shortDescription() or self.cwd
     n = pynotify.Notification(title,
             "Error: " + str(err[0].__name__) +
             "\n" + str(err[1]), 'gtk-no')
     n.show()
-    self.errors += 1
 
   def addFailure(self, test, err):
     """Called upon encountering a failure"""
-    # Update counter
+    # Display failure msg
     title = test.shortDescription() or self.cwd
     n = pynotify.Notification(title,
             "Failed: " + str(err[0].__name__) +
             "\n" + str(err[1]), 'gtk-no')
     n.show()
-    self.failures += 1
 
   def begin(a):
     """Called before running any tests, used for initialization"""
@@ -68,18 +56,18 @@ class PyNotify(Plugin):
 
   def finalize(self, result):
     """Called upon the completion of all tests"""
-    # Grab icon
-    if self.failures > 0 or self.errors > 0:
-      icon_name = "gtk-no"
-    elif self.successes > 0:
-      icon_name = "gtk-yes"
-    else:
-      icon_name = "dialog-question"
+    # Grab numbers of types of test results
+    errors = len(result.errors)
+    failures = len(result.failures)
+    successes = result.testsRun - errors - failures
+
+    # Choose icon
+    icon_name = "gtk-yes" if result.wasSuccessful() else "gtk-no"
 
     # Generate and show the message at the end of the test
     n = pynotify.Notification(self.cwd,
-                              self.msg % (self.successes,
-                                          self.errors,
-                                          self.failures),
+                              self.msg % (successes,
+                                          errors,
+                                          failures),
                               icon_name)
     n.show()    
