@@ -22,36 +22,63 @@ class PyNotify(Plugin):
     # Run parent class' constructor
     super(PyNotify, self).__init__()
 
+    self.show_each_error = False
+    self.show_each_failure = False
+
     # Generate msg title
     self.cwd = os.getcwd()
 
   def addError(self, test, err):
     """Called upon encountering an error"""
-    # Display error msg
-    title = test.shortDescription() or self.cwd
-    n = pynotify.Notification(title,
-            "Error: " + str(err[0].__name__) +
-            "\n" + str(err[1]), 'gtk-no')
-    n.show()
+    # Display error msg if need be
+    if self.show_each_error:
+      title = test.shortDescription() or self.cwd
+      n = pynotify.Notification(title,
+              "Error: " + str(err[0].__name__) +
+              "\n" + str(err[1]), 'gtk-no')
+      n.show()
 
   def addFailure(self, test, err):
     """Called upon encountering a failure"""
-    # Display failure msg
-    title = test.shortDescription() or self.cwd
-    n = pynotify.Notification(title,
-            "Failed: " + str(err[0].__name__) +
-            "\n" + str(err[1]), 'gtk-no')
-    n.show()
+    # Display failure msg if need be
+    if self.show_each_failure:
+      title = test.shortDescription() or self.cwd
+      n = pynotify.Notification(title,
+              "Failed: " + str(err[0].__name__) +
+              "\n" + str(err[1]), 'gtk-no')
+      n.show()
 
   def begin(a):
     """Called before running any tests, used for initialization"""
     # Initialize pynotify
     pynotify.init(os.getcwd())
 
+  def configure(self, options, conf):
+    """Configure the plugin based on provided options"""
+    Plugin.configure(self, options, conf)
+
+    if options.show_each_error:
+      self.show_each_error = True
+    if options.show_each_failure:
+      self.show_each_failure = True
+
   def options(self, parser, env):
     """Called to allow plugin to register command line options with the parser."""
-    # TODO: add option to of avoiding individual error/failure notifications
     Plugin.options(self, parser, env)
+
+    parser.add_option("--show-each-error",
+                      default=env.get("NOSE_SHOW_EACH_ERROR"),
+                      action="store_true",
+                      dest="show_each_error",
+                      help="Produce a notification event on each error "
+                      "encountered while testing [NOSE_SHOW_EACH_ERROR]")
+
+    parser.add_option("--show-each-failure",
+                      default=env.get("NOSE_SHOW_EACH_FAILURE"),
+                      action="store_true",
+                      dest="show_each_failure",
+                      help="Produce a notification event on each failure "
+                      "encountered while testing [NOSE_SHOW_EACH_FAILURE]")
 
   def finalize(self, result):
     """Called upon the completion of all tests"""
